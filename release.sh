@@ -24,8 +24,8 @@ case "$1" in
 	
 	;;
 	SUBSCRIBED) 
-		rename .xml .xml.off About/About.xml || echo 'Dev version already turned off. All ok'
-		rename .xml .xml.off "$RELEASE_VERSION/About/About.xml" || echo 'Release local version already turned off. All ok'
+		mv About/About.xml About/About.xml.off|| echo 'Dev version already turned off. All ok'
+		mv "$RELEASE_VERSION/About/About.xml" "$RELEASE_VERSION/About/About.xml.off" || echo 'Release local version already turned off. All ok'
 	;;
 	*) echo 'use either DEV or RELEASE or SUBSCRIBED'
 		exit 1
