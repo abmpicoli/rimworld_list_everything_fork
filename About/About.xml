@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-	<name>List Everything - Dev Build - albucc fork</name>
-	<author>original: Uuugggg - with albucc changes</author>
+	<name>List Everything (improved)</name>
+	<author>original: Uuugggg - with minor changes by albucc</author>
 	<supportedVersions>
 		<li>1.4</li>
 	</supportedVersions>
-	<packageId>DEBUuugggg_albucc.ListEverything</packageId>
-	<description>List things on the map with various filters 
-(This is the dev version of List Everything. The release version of About.xml is available for editing at About/About-Release.xml. Edits made on this file won't show up on the release version. Use VisualStudio to build a "Release" version of this mod when ready to upload your mod!)</description>
-	<url>https://steamcommunity.com/id/Uuugggg/myworkshopfiles/?appid=294100</url>
+	<packageId>uuugggg.albucc.ListEverything</packageId>
+	<description>This is the ListEverything mod from Uuuggggh with a small improvement:
+	
+	As with the original, a new Find tab is made available at the bottom of the screen. 
+	This allow to search for things on the map, with many criteria.
+	
+	(The improvement): The "MISC" Architect Tab now has a 'Search Spot'. You can place as many as you want in the map.
+	If you place one or more of those, the list results will be ordered by "aproximate distance from the Search Spots", followed by the item name.
+	
+	</description>
+	<url>https://github.com/abmpicoli/rimworld_list_everything_fork</url>
 </ModMetaData>

@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace List_Everything
 {
-	public class MainTabWindow_List : MainTabWindow
+  public class MainTabWindow_List : MainTabWindow
 	{
 		private FindDescription _findDesc;
 		public FindDescription findDesc => _findDesc;
@@ -227,6 +227,36 @@ namespace List_Everything
 		private Vector2 scrollPositionList = Vector2.zero;
 		private float scrollViewHeightList;
 
+		private Func<Thing,String> sortCriteria()
+		{
+			List<Building> allSearchSpots = new();
+			foreach (Map map in Current.Game.Maps)
+			{
+				foreach (Building b in map.listerBuildings.allBuildingsColonist)
+				{
+					if (b.GetType() == typeof(DummySpot))
+					{
+						allSearchSpots.Add(b);
+					}
+
+				}
+			}
+			return (theThing) =>
+			{
+				double distance = 999999;
+				foreach (Building b in allSearchSpots)
+				{
+					if (b.Map == theThing.Map)
+					{
+						distance = Math.Min(distance, b.Position.DistanceTo(theThing.Position));
+					}
+				}
+				return (distance / 3).ToString("000000") + "/" + theThing.Label + "/" + theThing.GetUniqueLoadID();
+			};
+
+
+		}
+
 		ThingDef selectAllDef;
 		bool selectAll;
 		public void DoList(Rect listRect)
@@ -304,7 +334,11 @@ namespace List_Everything
 			Widgets.BeginScrollView(listRect, ref scrollPositionList, viewRect);
 			Rect thingRect = new Rect(viewRect.x, 0, viewRect.width, 32);
 
-			foreach (Thing thing in findDesc.ListedThings)
+			List<Building> allSearchSpots = new();
+
+
+
+			foreach (Thing thing in findDesc.ListedThings.OrderBy(this.sortCriteria()))
 			{
 				//Be smart about drawing only what's shown.
 				if (thingRect.y + 32 >= scrollPositionList.y)
@@ -321,12 +355,12 @@ namespace List_Everything
 
 			//Select all 
 			if (selectAll)
-				foreach (Thing t in findDesc.ListedThings)
+				foreach (Thing t in findDesc.ListedThings.OrderBy(this.sortCriteria()))
 					TrySelect.Select(t, false);
 
 			//Select all for double-click
 			if (selectAllDef != null)
-				foreach(Thing t in findDesc.ListedThings)
+				foreach(Thing t in findDesc.ListedThings.OrderBy(this.sortCriteria()))
 					if (t.def == selectAllDef)
 						TrySelect.Select(t, false);
 
