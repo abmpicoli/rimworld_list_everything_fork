@@ -77,6 +77,34 @@ namespace List_Everything
 				RemakeList();
 			}
 		}
+		private Func<Thing, String> SortCriteria()
+		{
+			List<Building> allSearchSpots = new();
+			foreach (Map map in Current.Game.Maps)
+			{
+				foreach (Building b in map.listerBuildings.allBuildingsColonist)
+				{
+					if (b.GetType() == typeof(DummySpot))
+					{
+						allSearchSpots.Add(b);
+					}
+
+				}
+			}
+			return (theThing) =>
+			{
+				double distance = 999999;
+				foreach (Building b in allSearchSpots)
+				{
+					if (b.Map == theThing.Map)
+					{
+						distance = Math.Min(distance, b.Position.DistanceTo(theThing.Position));
+					}
+				}
+				return (distance / 3).ToString("000000") + "/" + theThing.Label + "/" + theThing.GetUniqueLoadID();
+			};
+		}
+
 
 		public void RemakeList()
 		{
@@ -127,6 +155,35 @@ namespace List_Everything
 					f.DoResolveReference(newMap);
 
 			return newDesc;
+		}
+		private Func<Thing, String> sortCriteria()
+		{
+			List<Building> allSearchSpots = new();
+			foreach (Map map in Current.Game.Maps)
+			{
+				foreach (Building b in map.listerBuildings.allBuildingsColonist)
+				{
+					if (b.GetType() == typeof(DummySpot))
+					{
+						allSearchSpots.Add(b);
+					}
+
+				}
+			}
+			return (theThing) =>
+			{
+				double distance = 999999;
+				foreach (Building b in allSearchSpots)
+				{
+					if (b.Map == theThing.Map)
+					{
+						distance = Math.Min(distance, b.Position.DistanceTo(theThing.Position));
+					}
+				}
+				return (distance / 3).ToString("000000") + "/" + theThing.Label + "/" + theThing.GetUniqueLoadID();
+			};
+
+
 		}
 
 		private IEnumerable<Thing> Get(Map map)
@@ -193,7 +250,7 @@ namespace List_Everything
 				allThings = filter.Apply(allThings);
 
 			//Sort
-			return allThings.OrderBy(t => t.def.shortHash).ThenBy(t => t.Stuff?.shortHash ?? 0).ThenBy(t => t.Position.x + t.Position.z * 1000).ToList();
+			return allThings.OrderBy(SortCriteria()).ToList();
 		}
 
 		//Probably a good filter

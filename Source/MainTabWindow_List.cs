@@ -227,36 +227,6 @@ namespace List_Everything
 		private Vector2 scrollPositionList = Vector2.zero;
 		private float scrollViewHeightList;
 
-		private Func<Thing,String> sortCriteria()
-		{
-			List<Building> allSearchSpots = new();
-			foreach (Map map in Current.Game.Maps)
-			{
-				foreach (Building b in map.listerBuildings.allBuildingsColonist)
-				{
-					if (b.GetType() == typeof(DummySpot))
-					{
-						allSearchSpots.Add(b);
-					}
-
-				}
-			}
-			return (theThing) =>
-			{
-				double distance = 999999;
-				foreach (Building b in allSearchSpots)
-				{
-					if (b.Map == theThing.Map)
-					{
-						distance = Math.Min(distance, b.Position.DistanceTo(theThing.Position));
-					}
-				}
-				return (distance / 3).ToString("000000") + "/" + theThing.Label + "/" + theThing.GetUniqueLoadID();
-			};
-
-
-		}
-
 		ThingDef selectAllDef;
 		bool selectAll;
 		public void DoList(Rect listRect)
@@ -338,7 +308,7 @@ namespace List_Everything
 
 
 
-			foreach (Thing thing in findDesc.ListedThings.OrderBy(this.sortCriteria()))
+			foreach (Thing thing in findDesc.ListedThings)
 			{
 				//Be smart about drawing only what's shown.
 				if (thingRect.y + 32 >= scrollPositionList.y)
@@ -355,12 +325,12 @@ namespace List_Everything
 
 			//Select all 
 			if (selectAll)
-				foreach (Thing t in findDesc.ListedThings.OrderBy(this.sortCriteria()))
+				foreach (Thing t in findDesc.ListedThings)
 					TrySelect.Select(t, false);
 
 			//Select all for double-click
 			if (selectAllDef != null)
-				foreach(Thing t in findDesc.ListedThings.OrderBy(this.sortCriteria()))
+				foreach(Thing t in findDesc.ListedThings)
 					if (t.def == selectAllDef)
 						TrySelect.Select(t, false);
 
