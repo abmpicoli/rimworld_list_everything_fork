@@ -16,7 +16,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
-    <DebugType>none</DebugType>
+    <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\Assemblies\</OutputPath>
     <DefineConstants>DEBUG</DefineConstants>
@@ -74,16 +74,73 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Krafs.Publicizer" Version="2.*">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Publicize Include="Assembly-CSharp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="**\*.cs" Exclude="obj\**\*" />
+    <Compile Include="AlertByFind.cs" />
+    <Compile Include="AlertByFindDialog.cs" />
+    <Compile Include="AlertCache.cs" />
+    <Compile Include="Alert_Find.cs" />
+    <Compile Include="ContentsUtility.cs" />
+    <Compile Include="DebugLog.cs" />
+    <Compile Include="Dialog_ManageSavedLists.cs" />
+    <Compile Include="Dialog_Name.cs" />
+    <Compile Include="FilterOwner.cs" />
+    <Compile Include="FindAlertData.cs" />
+    <Compile Include="FindDescription.cs" />
+    <Compile Include="GetInnerThing.cs" />
+    <Compile Include="IntRangeIncludesPlease.cs" />
+    <Compile Include="IntRangeUtils.cs" />
+    <Compile Include="IScriptState.cs" />
+    <Compile Include="JavascriptScriptState.cs" />
+    <Compile Include="ListEverythingGameComp.cs" />
+    <Compile Include="ListFilter.cs" />
+    <Compile Include="ListFilterArea.cs" />
+    <Compile Include="ListFilterByEdgeDistance.cs" />
+    <Compile Include="ListFilterBySearchSpot.cs" />
+    <Compile Include="ListFilterCategory.cs" />
+    <Compile Include="ListFilterCategoryDef.cs" />
+    <Compile Include="ListFilterClassType.cs" />
+    <Compile Include="ListFilterDesignation.cs" />
+    <Compile Include="ListFilterDeterioration.cs" />
+    <Compile Include="ListFilterDoorOpen.cs" />
+    <Compile Include="ListFilterDrawerType.cs" />
+    <Compile Include="ListFilterDropDown.cs" />
+    <Compile Include="ListFilterFaction.cs" />
+    <Compile Include="ListFilterForbidden.cs" />
+    <Compile Include="ListFilterFreshness.cs" />
+    <Compile Include="ListFilterGroup.cs" />
+    <Compile Include="ListFilterGrowth.cs" />
+    <Compile Include="ListFilterHP.cs" />
+    <Compile Include="ListFilterItemCategory.cs" />
+    <Compile Include="ListFilterLimit.cs" />
+    <Compile Include="ListFilterMaker.cs" />
+    <Compile Include="ListFilterMineable.cs" />
+    <Compile Include="ListFilterMissingBodyPart.cs" />
+    <Compile Include="ListFilterModded.cs" />
+    <Compile Include="ListFilterName.cs" />
+    <Compile Include="ListFilterOnScreen.cs" />
+    <Compile Include="ListFilterOrderByName.cs" />
+    <Compile Include="ListFilterPawnProp.cs" />
+    <Compile Include="ListFilterPlantCrop.cs" />
+    <Compile Include="ListFilterPlantDies.cs" />
+    <Compile Include="ListFilterPlantHarvest.cs" />
+    <Compile Include="ListFilterQuality.cs" />
+    <Compile Include="ListFilterReverseOrder.cs" />
+    <Compile Include="ListFilterScript.cs" />
+    <Compile Include="ListFilterSpecialFilter.cs" />
+    <Compile Include="ListFilterStuff.cs" />
+    <Compile Include="ListFilterThingDef.cs" />
+    <Compile Include="ListFilterTimeToRot.cs" />
+    <Compile Include="ListFilterWithOption.cs" />
+    <Compile Include="ListFilterZone.cs" />
+    <Compile Include="Listing_StandardIndent.cs" />
+    <Compile Include="List_Everything.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="MainTabWindow_List.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReflectionUtils.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="TranslateEnum.cs" />
+    <Compile Include="TrySelect.cs" />
+    <Compile Include="WidgetRowEx.cs" />
     <Compile Include="DummySpot.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

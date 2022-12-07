@@ -10,20 +10,11 @@ namespace List_Everything
 {
 	public static class AlertByFind
 	{
-		// Vanilla game works by statically listing all alerts
-		private static List<Alert> AllAlerts =>
-			((Find.UIRoot as UIRoot_Play)?.alerts as AlertsReadout)?.AllAlerts;
-
-		// ... and copying them to activeAlerts to be displayed
-		// (We only need this to remove from it)
-		private static List<Alert> activeAlerts =>
-			((Find.UIRoot as UIRoot_Play)?.alerts as AlertsReadout)?.activeAlerts;
-
-		private static Alert_Find GetAlert(string name) =>
-			AllAlerts.FirstOrDefault(a => a is Alert_Find af && af.GetLabel() == name) as Alert_Find;
-
+		private static Logger log = new Logger("AlertByFind");
 		public static void AddAlert(FindAlertData alert, bool overwrite = false, Action okAction = null)
 		{
+			log.log(()=>"AddAlert " + alert.GetHashCode() + " , " + overwrite + " , " + okAction + " invoked");
+			
 			if (!overwrite && GetAlert(alert.desc.name) != null)
 			{
 				Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
@@ -31,20 +22,27 @@ namespace List_Everything
 					{
 						RemoveAlert(alert.desc.name);
 						AddAlert(alert, true, okAction);
+						FindAlertData.Activate(alert);
+
 					}));
 			}
 			else
 			{
-				AllAlerts.Add(new Alert_Find(alert));
+				FindAlertData.Activate(alert);
 				okAction?.Invoke();
 			}
 		}
 
-		public static void RemoveAlert(string name)
-		{
-			AllAlerts.RemoveAll(a => a is Alert_Find af && af.GetLabel() == name);
-			activeAlerts.RemoveAll(a => a is Alert_Find af && af.GetLabel() == name);
-		}
+	public static FindAlertData GetAlert(string name)
+	{
+			return FindAlertData.GetAlertData(name);
+	}
+
+	public static void RemoveAlert(string name)
+	{
+			FindAlertData.RemoveAlert(name);
+
+	}
 
 		public static void RenameAlert(string name, string newName, bool overwrite = false, Action okAction = null)
 		{

@@ -24,7 +24,7 @@ namespace List_Everything
 
 		//protected but using publicized assembly
 		//protected override void SetName(string name)
-		public override void SetName(string name)
+		protected override void SetName(string name)
 		{
 			setNameAction(name);
 		}

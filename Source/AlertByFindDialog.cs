@@ -20,7 +20,7 @@ namespace List_Everything
 
 		//protected but using publicized assembly
 		//protected override void SetInitialSizeAndPosition()
-		public override void SetInitialSizeAndPosition()
+		protected override void SetInitialSizeAndPosition()
 		{
 			base.SetInitialSizeAndPosition();
 			windowRect.x = UI.screenWidth - windowRect.width;
@@ -70,6 +70,7 @@ namespace List_Everything
 			foreach (string name in comp.AlertNames())
 			{
 				FindAlertData alert = comp.GetAlert(name);
+				alert.Activate();
 				WidgetRow row = new WidgetRow(rowRect.x, rowRect.y, UIDirection.RightThenDown, rowRect.width);
 				rowRect.y += RowHeight;
 
@@ -97,8 +98,8 @@ namespace List_Everything
 				comp.SetTicks(name, sec * 60);
 
 				row.Label("TD.ShowWhen".Translate());
-				if (row.ButtonIcon(TexFor(alert.countComp)))
-					comp.SetComp(name, (CompareType)((int)(alert.countComp + 1) % 3));
+				if (row.ButtonIcon((Texture2D)alert.countComp.Icon()))
+					comp.SetComp(name, CompareType.NextComparator(alert.countComp));
 
 				int count = alert.countToAlert;
 				string countStr = count.ToString();
@@ -120,10 +121,5 @@ namespace List_Everything
 						"TD.Delete0".Translate(remove), () => comp.RemoveAlert(remove)));
 			}
 		}
-
-		public static Texture2D TexFor(CompareType comp) =>
-			comp == CompareType.Equal ? TexButton.Equals :
-			comp == CompareType.Greater ? TexButton.GreaterThan :
-			TexButton.LessThan;
 	}
 }

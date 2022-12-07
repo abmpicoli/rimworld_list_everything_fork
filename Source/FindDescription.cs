@@ -16,8 +16,13 @@ namespace List_Everything
 	public class FindDescription : IExposable, IFilterHolder
 	{
 		public string name = "TD.NewFindFilters".Translate();
-		
-		private List<Thing> listedThings = new();
+
+	public override string ToString()
+	{
+			return "FindDescription " + GetHashCode() + "name: " + this.name + "label: " + this.mapLabel + "filters:\n"+ (Children?.Filters != null ?  string.Join(",\n  ",Children?.Filters):"");
+	}
+
+	private List<Thing> listedThings = new();
 		public IEnumerable<Thing> ListedThings => listedThings;
 
 		private FilterHolder children;
@@ -76,33 +81,6 @@ namespace List_Everything
 				_baseType = value;
 				RemakeList();
 			}
-		}
-		private Func<Thing, String> SortCriteria()
-		{
-			List<Building> allSearchSpots = new();
-			foreach (Map map in Current.Game.Maps)
-			{
-				foreach (Building b in map.listerBuildings.allBuildingsColonist)
-				{
-					if (b.GetType() == typeof(DummySpot))
-					{
-						allSearchSpots.Add(b);
-					}
-
-				}
-			}
-			return (theThing) =>
-			{
-				double distance = 999999;
-				foreach (Building b in allSearchSpots)
-				{
-					if (b.Map == theThing.Map)
-					{
-						distance = Math.Min(distance, b.Position.DistanceTo(theThing.Position));
-					}
-				}
-				return (distance / 3).ToString("000000") + "/" + theThing.Label + "/" + theThing.GetUniqueLoadID();
-			};
 		}
 
 
@@ -207,8 +185,8 @@ namespace List_Everything
 					List<IThingHolder> holders = new List<IThingHolder>();
 					map.GetChildHolders(holders);
 					List<Thing> list = new List<Thing>();
-					foreach (IThingHolder holder in holders.Where(ContentsUtility.CanPeekInventory))
-						list.AddRange(ContentsUtility.AllKnownThings(holder));
+					//foreach (IThingHolder holder in holders.Where(ContentsUtility.CanPeekInventory))
+						//list.AddRange(ContentsUtility.AllKnownThings(holder));
 					allThings = list;
 					break;
 				case BaseListType.Items:
@@ -250,7 +228,7 @@ namespace List_Everything
 				allThings = filter.Apply(allThings);
 
 			//Sort
-			return allThings.OrderBy(SortCriteria()).ToList();
+			return allThings.ToList();
 		}
 
 		//Probably a good filter

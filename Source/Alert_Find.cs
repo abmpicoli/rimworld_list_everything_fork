@@ -1,57 +1,64 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Verse;
 using RimWorld;
 using UnityEngine;
+using System;
 
 namespace List_Everything
 {
-	public enum CompareType { Greater,Equal,Less}
-	public class FindAlertData : IExposable
+	
+
+	public class Alert_Find_Cache
 	{
-		public FindDescription desc;
-
-		public AlertPriority alertPriority;
-		public int ticksToShowAlert;
-		public int countToAlert;
-		public CompareType countComp;
-
-		public FindAlertData() { }
-
-		public FindAlertData(FindDescription d)
+		private int count;
+		private IEnumerable<Thing> foundThings;
+		int Count
 		{
-			desc = d;
-		}
-
-		public Map _scribeMap;
-		public void ExposeData()
-		{
-			Scribe_Deep.Look(ref desc, "desc");
-
-			Scribe_Values.Look(ref alertPriority, "alertPriority");
-			Scribe_Values.Look(ref ticksToShowAlert, "ticksToShowAlert");
-			Scribe_Values.Look(ref countToAlert, "countToAlert");
-			Scribe_Values.Look(ref countComp, "countComp");
-
-			if (Scribe.mode == LoadSaveMode.Saving)
-				_scribeMap = desc.map;
-
-			Scribe_References.Look(ref _scribeMap, "map");
-
-			if (Scribe.mode == LoadSaveMode.PostLoadInit)
+			get
 			{
-				desc.map = _scribeMap;
-				_scribeMap = null;
+				Recalculate();
+				return count;
 			}
 		}
+
+		private void Recalculate()
+		{
+			throw new NotImplementedException();
+		}
+
+		IEnumerable<Thing> FoundThings
+		{
+			get
+			{
+				Recalculate();
+				return foundThings;
+			}
+		}
+
 	}
 
 
 	public class Alert_Find : Alert
 	{
-		public FindAlertData alertData;
+		private static Logger log = new Logger("Alert_Find");
+
+		private FindAlertData _alertData;
+		public FindAlertData AlertData
+		{
+			get
+			{
+				return _alertData;
+			}
+			set
+			{
+				defaultLabel = value.Name;
+				defaultPriority = value.alertPriority;
+				_alertData = value;
+			}
+		}
+
 		public int maxItems = 16;
 		int tickStarted;
 
@@ -59,65 +66,91 @@ namespace List_Everything
 
 		public Alert_Find()
 		{
-			//The vanilla alert added to AllAlerts will be constructed but never be active with null filter
+			log.log(() => GetHashCode() + ":Created new AlertFind ");
 		}
 
 		public Alert_Find(FindAlertData d) : this()
 		{
-			defaultLabel = d.desc.name;
-			defaultPriority = d.alertPriority;
-			alertData = d;
+			log.log(() => "Created new AlertFind with " + d.Name);
+			AlertData = d;
 		}
 
 		//copied from Alert_Critical
 		private const float PulseFreq = 0.5f;
 		private const float PulseAmpCritical = 0.6f;
-		private const float PulseAmpTutorial = 0.2f;
-		
+
+		private static readonly Color standardColor = new Color(0.9f, 0.9f, 0.9f, 0.2f);
+
 		//protected but using publicized assembly
 		//protected override Color BGColor
-		public override Color BGColor
+		protected override Color BGColor
 		{
 			get
 			{
-				if (defaultPriority != AlertPriority.Critical) return base.BGColor;
-				float i = Pulser.PulseBrightness(PulseFreq, Pulser.PulseBrightness(PulseFreq, PulseAmpCritical));
-				return new Color(i, i, i) * Color.red;
+				Color result;
+
+				if (defaultPriority != AlertPriority.Critical)
+				{
+					result = standardColor;
+				}
+				else
+				{
+					float i = Pulser.PulseBrightness(PulseFreq, Pulser.PulseBrightness(PulseFreq, PulseAmpCritical));
+					result = new Color(i, i, i) * Color.red;
+				}
+				log.log(() => this.GetHashCode() + this?.AlertData?.Name + ": bgcolor set to " + result);
+				return result;
 			}
 		}
 
-		public void Rename(string name)
+		public string Name
 		{
-			defaultLabel = name;
-			alertData.desc.name = name;
+			get
+			{
+				return AlertData != null ? AlertData.Name : "#undefined";
+			}
+
 		}
-		public void SetPriority(AlertPriority p)
+
+		public override string GetLabel()
 		{
-			defaultPriority = p;
-			alertData.alertPriority = p;
+			string result;
+			if (AlertData != null)
+			{
+				result = AlertData.Name + ":" + FoundThings().Sum(t => t.stackCount);
+			}
+			else
+			{
+				result = "???";
+			}
+			log.log(() => this.GetHashCode() + " " + AlertData?.Name + ": label set to " + result);
+			return result;
 		}
-		public void SetTicks(int t) => alertData.ticksToShowAlert = t;
-		public void SetCount(int c) => alertData.countToAlert = c;
-		public void SetComp(CompareType c) => alertData.countComp = c;
-		
+
+
+
+
 		public override AlertReport GetReport()
 		{
-			if (alertData == null || !enableAll)	//Alert_Find auto-added as an Alert subclass, exists but never displays anything
+			log.log(() => GetHashCode() + " : Getting AlertReport: alertData = " + AlertData + " : enableAll = " + enableAll);
+			if (AlertData == null || !enableAll)  //Alert_Find auto-added as an Alert subclass, exists but never displays anything
 				return AlertReport.Inactive;
 
 			var things = FoundThings();
 			int count = things.Sum(t => t.stackCount);
-			bool active = false;
-			switch(alertData.countComp)
-			{
-				case CompareType.Greater: active = count > alertData.countToAlert;	break;
-				case CompareType.Equal:		active = count == alertData.countToAlert;	break;
-				case CompareType.Less:		active = count < alertData.countToAlert;	break;
-			}
+			log.log(() => GetHashCode() + ": count = " + count);
+			bool active = AlertData != null ? AlertData.Evaluate() : false;
+			
+			
+			log.log(() => GetHashCode() + " tickStarted = " + tickStarted + " ; ticksGame = " + Find.TickManager.TicksGame + "; to show alert = " + AlertData.ticksToShowAlert);
 			if (!active)
-				tickStarted = Find.TickManager.TicksGame;
-			else if (Find.TickManager.TicksGame - tickStarted >= alertData.ticksToShowAlert)
 			{
+				log.log(() => GetHashCode() + " : inactive. ");
+				tickStarted = Find.TickManager.TicksGame;
+			}
+			else if (Find.TickManager.TicksGame - tickStarted >= AlertData.ticksToShowAlert)
+			{
+
 				if (count == 0)
 					return AlertReport.Active;
 				return AlertReport.CulpritsAre(things.Take(maxItems).ToList());
@@ -129,7 +162,7 @@ namespace List_Everything
 		{
 			var things = FoundThings();
 			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.Append(defaultLabel + alertData.desc.mapLabel);
+			stringBuilder.Append(defaultLabel + AlertData.desc.mapLabel);
 			stringBuilder.AppendLine(" - " + MainTabWindow_List.LabelCountThings(things));
 			stringBuilder.AppendLine("");
 			foreach (Thing thing in things.Take(maxItems))
@@ -143,31 +176,19 @@ namespace List_Everything
 		}
 
 		int currentTick;
-		private IEnumerable<Thing> FoundThings()
-		{
-			
-			if (Find.TickManager.TicksGame == currentTick)
-				return alertData.desc.ListedThings;
-
-			currentTick = Find.TickManager.TicksGame;
-
-			alertData.desc.RemakeList();
-
-
-			return alertData.desc.ListedThings;
-		}
+		
 
 		public override Rect DrawAt(float topY, bool minimized)
 		{
 			Text.Font = GameFont.Small;
 			string label = this.GetLabel();
-			float height = Text.CalcHeight(label, Alert.Width - 6); //Alert.TextWidth = 148f
-			Rect rect = new Rect((float)UI.screenWidth - Alert.Width, topY, Alert.Width, height);
+			float height = Text.CalcHeight(label, Width - 6); //Alert.TextWidth = 148f
+			Rect rect = new Rect((float)UI.screenWidth - Width, topY, Width, height);
 			//if (this.alertBounce != null)
 			//rect.x -= this.alertBounce.CalculateHorizontalOffset();
 			if (Event.current.button == 1 && Widgets.ButtonInvisible(rect, false))
 			{
-				MainTabWindow_List.OpenWith(alertData.desc.Clone(alertData.desc.map), true);
+				MainTabWindow_List.OpenWith(AlertData.desc.Clone(AlertData.desc.map), true);
 
 				Event.current.Use();
 			}

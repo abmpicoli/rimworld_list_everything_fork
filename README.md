@@ -1,19 +1,69 @@
-# RimWorld-ListEverything: Slightly Improved.
+# RimWorld-ListEverything: Improved.
 
-This is a permanent fork of the mod https://github.com/alextd/RimWorld-ListEverything
+Search, order and potentially act on all things inside Rimworld Colony/Encampment maps. Version 3.0.
 
-I decided to make this an "independent" repository because I have received some 
-questions in private regarding issues compiling this mod, and I didn't want to 
-place this discussion in a repository that would get other people being "bugged" with
-the questions. 
-
-#Description:
+# Description:
 
 List all sort of "things" on the map with various filters.
 
-* When running a Rimworld game, click on the "Find" tab and there are many search options available. Some examples: 
-* The "Search Spot" ![Search Spot Icon](Textures/find_center.png) construction option is made available in the Rimworld Architect "Misc" tab.
-  If one or more Search Spots are set, then the search results will be ordered by distance from the closest spots.
+**3.0 Important change: the lists are no longer sorted in any way, unless you explicitly add a order clause: Look for "Order and limits" in this text. This means
+the original natural ordering by distance to Search Spot no longer work 'out of the box' since it is now a query option.**
+
+As of release 3.0 the following filters are available:
+
+* **Search by name**: show all items that has the provided text somewhere in its name (new on 3.0: or the definition label).
+* **Specific Thing**: search for a specific item type, like Wood, steel, compacted steel, etc.
+* **Category**: search by a specific generic category : Person, Animal, Item, Natural, Plant, Other
+* **Python**: *(new to 3.0)*: a simple python that contains one or two functions to filter the things found so far.
+
+  The full path to the script must be provided, appended with the tag `.END.` to activate it.
+  
+  Once the script is activated, a special log file with the same name as the script plus a '.log' file will contain debug output dedicated to that script,
+  to avoid Rimworld log clutter.
+  
+  Please check the repository https://github.com/abmpicoli/rimworld_list_everything_fork/Docs for some working examples. More to come. These same docs
+  are also available in the mod directory. *Warning: they can be overwritten without warning. Make local copies!*
+  
+  *Design notes: the script engine used is 'IronPython ' 2
+
+* **Personal details**: some filters regarding colonist/animals info, such as thoughts, missing body parts, etc.
+* **Animal details**: information regarding animals covering hunting and handling: milk fullness, egg hatching, meat amount, etc.
+* **Buildings** : Hm... open close doors, mineable stuff?? Well, they are there...
+* **Plants and food**: albucc's personal favorite. Find full grown plants that can be harvested. Find food about to spoil.
+  Specially good for Naked Brutality/ Rich Explorer Scenarios.
+* **location**: filter things at areas / zones / and "things with other things nearby".
+* **Health**: general health % of things, objects or not.
+* **Inventory**: find things that are holding other things, or things this thing is holding.
+* **Designated**: find things that are designated to be acted upon.
+* **faction**: the faction the thing belongs to.
+* **from a mod**: things belonging to a specific mod.
+* **currently on screen**: things visible on screen.
+* **filter group**: allows to perform union / intersection between multiple search criteria.
+* **Order an limits**: *(new to 3.0)*: a series of criterias that tell to reorder the outcomes according to some criteria.
+  The available options are:
+  * **Order by distance from Search Spots**: a new item in the Architect/ Miscelaneous tab, the "Search Spot" ![Search Spot](Textures/find_center_small.png) can be placed 
+    on the map. You can place as many of those as you want, at multiple maps. This filter will order the findings around that search spot. 
+  * **Order by distance to map edge(center first)**: itens more distant to the map edges come first.
+  * **Order by item name**: the items are sorted alphabetically by name.
+  * **Limit results**: allow to only pick a determined amount of results.
+  * **Reverse order**: invert the ordering of the findings. 
+  
+## Usage hints:
+
+* The filters are always executed in the order they are listed. Make simple searches first, to narrow results, and only then use the more complex filters to gather information.
+* The javascript filter can be used to collect information about things while filtering them, thanks to the "log()" function. Which allows to troubleshoot quickly some 
+  issues without the need to change C# code and restart rimworld.
+* *Javascript is an interpreted language*: which means that it is potentially slower. Specially if you keep using the "log()" function, which will also cause real time disk 
+  writes.
+* *Javascript gives great power, but great responsibility:* be warned that a badly written javascript may cause all sort of things, including memory leaks, rimworld crashes and strange runtime behaviors.
+
+# Links and authoring:
+
+This is a permanent fork of the mod https://github.com/alextd/RimWorld-ListEverything created by Uuuggggh.
+
+This mod on Steam: https://steamcommunity.com/sharedfiles/filedetails/?id=2896175723.
+
+Uuuggggh have abandoned this mod in favor of a full refactor into 4 new mods. You may check his actual work at https://steamcommunity.com/sharedfiles/filedetails/?id=2895300634 
 
 # Compilation hints:
 
@@ -22,3 +72,14 @@ https://rimworldwiki.com/wiki/Modding_Tutorials/Setting_up_a_solution
 
 The most important of all is the fact that *if you don't place the repository inside the rimworld Mods directory, references to required libraries will break*.
 
+The shellscript ./release.sh allows to build a "clean release" at another mod folder. It can be executed with Git Bash or a typical shellscript terminal. Personally, I use Ubuntu at my windows machine (WSL).
+
+# Contributing:
+
+* Please be free to check the code and contribute. Also be welcome to fork this code and create your own changes (just as I did).
+
+# How to get help: 
+
+I don't see a problem if you post questions in the Comments section.
+
+If for some reason this is not possible for you, consider opening an issue on github https://github.com/abmpicoli/rimworld_list_everything_fork/issues. 

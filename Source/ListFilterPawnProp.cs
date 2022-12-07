@@ -12,7 +12,7 @@ namespace List_Everything
 {
 	class ListFilterSkill : ListFilterDropDown<SkillDef>
 	{
-		IntRange skillRange = new IntRange(0, 20);
+		public IntRange skillRange = new IntRange(0, 20);
 		int passion = 3;
 
 		static string[] passionText = new string[] { "PassionNone", "PassionMinor", "PassionMajor", "TD.AnyOption" };//notranslate
@@ -41,7 +41,7 @@ namespace List_Everything
 			thing is Pawn pawn &&
 				pawn.skills?.GetSkill(sel) is SkillRecord rec &&
 				!rec.TotallyDisabled &&
-				skillRange.Includes(rec.Level) && (passion == 3 || (int)rec.passion == passion);
+				skillRange.max >=rec.Level && skillRange.min <= rec.Level  && (passion == 3 || (int)rec.passion == passion);
 
 		public override bool DrawCustom(Rect rect, WidgetRow row)
 		{
@@ -152,7 +152,7 @@ namespace List_Everything
 			orderedStages.IndexOf(stageI);
 
 		private bool Includes(int stageI) =>
-			stageRange.Includes(OrderedIndex(stageI));
+			stageRange.max >= OrderedIndex(stageI) && stageRange.min <= OrderedIndex(stageI);
 
 
 		// Multistage UI is only shown when when there's >1 stage
@@ -800,7 +800,7 @@ namespace List_Everything
 				return productDef == null;
 
 			if(extraOption == 1 ? productDef != null : sel == productDef)
-				return countRange.Includes(CountFor(pawn));
+				return IntRangeUtils.Includes(countRange,CountFor(pawn));
 
 			return false;
 		}
@@ -931,7 +931,9 @@ namespace List_Everything
 	{
 		protected FloatRange progressRange = new FloatRange(0, 1);
 
-		public override void ExposeData()
+	
+
+	public override void ExposeData()
 		{
 			base.ExposeData();
 			Scribe_Values.Look(ref progressRange, "progressRange");
@@ -947,8 +949,8 @@ namespace List_Everything
 			(float)
 			(sel switch
 			{
-				ProgressType.EggProgress => thing.TryGetComp<CompEggLayer>()?.eggProgress,
-				ProgressType.EggHatch => thing.TryGetComp<CompHatcher>()?.gestateProgress,
+				ProgressType.EggProgress => ReflectionUtils.fieldValue<float>(thing.TryGetComp<CompEggLayer>(),"eggprogress",0.0f),
+				ProgressType.EggHatch => ReflectionUtils.fieldValue<float>(thing.TryGetComp<CompHatcher>(), "gestateProgress",0.0f),
 				ProgressType.MilkFullness => thing.TryGetComp<CompMilkable>()?.Fullness,
 				ProgressType.WoolGrowth => thing.TryGetComp<CompShearable>()?.Fullness,
 				ProgressType.Milkable => thing.TryGetComp<CompMilkable>()?.ActiveAndFull ?? false ? 1 : 0,

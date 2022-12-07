@@ -15,17 +15,12 @@ namespace List_Everything
 			=> holder.IsEnclosingContainer() && !(holder is MinifiedThing);
 
 
-		public static bool CanPeekInventory(this IThingHolder holder) =>
-			DebugSettings.godMode ||
-			(holder is Building_Casket c ? c.contentsKnown : true) &&
-			!(holder is TradeShip);
-
 		public static List<Thing> AllKnownThings(IThingHolder holder)
 		{
 			if (holder == null) return new List<Thing>();
 
 			List<Thing> knownThings = new List<Thing>();
-			ThingOwnerUtility.GetAllThingsRecursively(holder, knownThings, true, ContentsUtility.CanPeekInventory);
+			ThingOwnerUtility.GetAllThingsRecursively(holder, knownThings, true);
 			return knownThings.FindAll(t => DebugSettings.godMode || !t.PositionHeld.Fogged(t.MapHeld));
 		}
 
