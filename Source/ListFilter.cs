@@ -75,12 +75,21 @@ namespace List_Everything
 			//clone.parent = newHolder; //No - MakeFilter just set it.
 			return clone;
 		}
-		public virtual void DoResolveReference(Map map) { }
+
+		/**
+		 * Adds the option to override how the list is generated entirely by subclasses. This allow actions like placing limits and ordering lists.
+		 */
+	public virtual IEnumerable<Thing> doApply(IEnumerable<Thing> list)
+	{
+			return list.Where(t => AppliesTo(t));
+	}
+
+	public virtual void DoResolveReference(Map map) { }
 
 
 		public IEnumerable<Thing> Apply(IEnumerable<Thing> list)
 		{
-			return Enabled ? list.Where(t => AppliesTo(t)) : list;
+			return Enabled ? doApply(list) : list; 
 		}
 
 		//This can be problematic for minified things: We want the qualities of the inner things,

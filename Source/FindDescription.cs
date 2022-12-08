@@ -237,6 +237,7 @@ namespace List_Everything
 				case BaseListType.FilthInHomeArea:
 					allThings = map.listerFilthInHomeArea.FilthInHomeArea;
 					break;
+				
 			}
 
 			//Filters
@@ -249,8 +250,7 @@ namespace List_Everything
 			foreach (ListFilter filter in Children.Filters)
 				allThings = filter.Apply(allThings);
 
-			//Sort
-			return allThings.OrderBy(SortCriteria()).ToList();
+			return allThings;
 		}
 
 		//Probably a good filter
