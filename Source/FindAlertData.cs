@@ -29,7 +29,7 @@ namespace List_Everything
 		public AlertPriority alertPriority;
 		public int ticksToShowAlert;
 		public int countToAlert;
-		public ICompareType countComp;
+		public ICriteria countComp;
 
 	public override string ToString()
 	{
@@ -84,9 +84,9 @@ namespace List_Everything
 			}
 		}
 
-	
+	public FindStateCache CurrentState { get; internal set; }
 
-	private ICompareType compareType;
+	private ICriteria compareType;
 		private int count;
 
 		public void ExposeData()
@@ -159,7 +159,7 @@ namespace List_Everything
 			this.count = c;
 		}
 
-		public void SetComp(ICompareType c)
+		public void SetComp(ICriteria c)
 		{
 			this.compareType = c;
 		}

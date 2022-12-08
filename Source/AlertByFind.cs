@@ -13,8 +13,8 @@ namespace List_Everything
 		private static Logger log = new Logger("AlertByFind");
 		public static void AddAlert(FindAlertData alert, bool overwrite = false, Action okAction = null)
 		{
-			log.log(()=>"AddAlert " + alert.GetHashCode() + " , " + overwrite + " , " + okAction + " invoked");
-			
+			log.log(() => "AddAlert " + alert.GetHashCode() + " , " + overwrite + " , " + okAction + " invoked");
+
 			if (!overwrite && GetAlert(alert.desc.name) != null)
 			{
 				Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
@@ -33,16 +33,16 @@ namespace List_Everything
 			}
 		}
 
-	public static FindAlertData GetAlert(string name)
-	{
+		public static FindAlertData GetAlert(string name)
+		{
 			return FindAlertData.GetAlertData(name);
-	}
+		}
 
-	public static void RemoveAlert(string name)
-	{
+		public static void RemoveAlert(string name)
+		{
 			FindAlertData.RemoveAlert(name);
 
-	}
+		}
 
 		public static void RenameAlert(string name, string newName, bool overwrite = false, Action okAction = null)
 		{
@@ -67,11 +67,5 @@ namespace List_Everything
 
 		public static void SetTicks(string name, int t) =>
 			GetAlert(name)?.SetTicks(t);
-
-		public static void SetCount(string name, int c) =>
-			GetAlert(name)?.SetCount(c);
-
-		public static void SetComp(string name, CompareType c) =>
-			GetAlert(name)?.SetComp(c);
-	}
+		}
 }

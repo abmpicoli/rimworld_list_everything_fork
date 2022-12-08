@@ -8,36 +8,8 @@ using System;
 
 namespace List_Everything
 {
-	
 
-	public class Alert_Find_Cache
-	{
-		private int count;
-		private IEnumerable<Thing> foundThings;
-		int Count
-		{
-			get
-			{
-				Recalculate();
-				return count;
-			}
-		}
 
-		private void Recalculate()
-		{
-			throw new NotImplementedException();
-		}
-
-		IEnumerable<Thing> FoundThings
-		{
-			get
-			{
-				Recalculate();
-				return foundThings;
-			}
-		}
-
-	}
 
 
 	public class Alert_Find : Alert
@@ -115,9 +87,11 @@ namespace List_Everything
 		public override string GetLabel()
 		{
 			string result;
-			if (AlertData != null)
+			FindAlertData data = AlertData;
+			if (data != null)
 			{
-				result = AlertData.Name + ":" + FoundThings().Sum(t => t.stackCount);
+				return data.Name + ":" + data.countComp.Metric;
+				
 			}
 			else
 			{
@@ -140,8 +114,8 @@ namespace List_Everything
 			int count = things.Sum(t => t.stackCount);
 			log.log(() => GetHashCode() + ": count = " + count);
 			bool active = AlertData != null ? AlertData.Evaluate() : false;
-			
-			
+
+
 			log.log(() => GetHashCode() + " tickStarted = " + tickStarted + " ; ticksGame = " + Find.TickManager.TicksGame + "; to show alert = " + AlertData.ticksToShowAlert);
 			if (!active)
 			{
@@ -176,7 +150,7 @@ namespace List_Everything
 		}
 
 		int currentTick;
-		
+
 
 		public override Rect DrawAt(float topY, bool minimized)
 		{

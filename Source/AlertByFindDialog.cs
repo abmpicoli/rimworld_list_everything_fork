@@ -84,7 +84,7 @@ namespace List_Everything
 				
 				if (row.ButtonText("Delete".Translate()))
 					remove = name;
-
+				
 				bool crit = alert.alertPriority == AlertPriority.Critical;
 				row.ToggleableIcon(ref crit, TexButton.PassionMajorIcon, "TD.CriticalAlert".Translate());
 				comp.SetPriority(name, crit ? AlertPriority.Critical : AlertPriority.Medium);
@@ -96,8 +96,12 @@ namespace List_Everything
 				Widgets.TextFieldNumeric(textRect, ref sec, ref secStr, 0, 999999);
 				TooltipHandler.TipRegion(textRect, "TD.Tip1000SecondsInARimworldDay".Translate());
 				comp.SetTicks(name, sec * 60);
-
 				row.Label("TD.ShowWhen".Translate());
+				if (alert.countComp.DrawSpecificationDetails())
+				{
+					alert.countComp = CriteriaFactory.Roll(alert.countComp);
+				}
+				
 				if (row.ButtonIcon((Texture2D)alert.countComp.Icon()))
 					comp.SetComp(name, CompareType.NextComparator(alert.countComp));
 

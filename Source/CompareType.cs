@@ -1,57 +1,55 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Verse;
 
 namespace List_Everything
 {
-	public class CompareType : ICompareType
+	public class CompareType : ICriteria
 	{
-		static CompareType()
-		{
-			Add(new CompareTypeFactory("greater_than",(data,criteria) => data.CurrentState.Count > (int)criteria, TexButton.GreaterThan),">");
-			Add(new CompareTypeFactory("less_than",(data,criteria) => data.CurrentState.Count < (int)criteria, TexButton.LessThan),"<");
-			Add(new CompareTypeFactory("equals",(data,criteria) => data.CurrentState.Count == (int)criteria, TexButton.Equals),"=");
-		}
-		private readonly Func<FindAlertData, bool> function;
-		private readonly Texture2D symbol;
-	private readonly object criteria;
-	private readonly string caption;
-	private static readonly ICompareType EMPTY = new CompareType((s) => false, TexButton.Unknown,null);
+		private ICriteriaFactory factory;
+		private Func<FindAlertData, string> metricFunction;
+		private FindAlertData alertData;
+		private string _target;
+		private Texture2D icon;
+		private string caption;
 
-		internal CompareType(ICompareTypeFactory factory,Func<FindAlertData, bool> function, Texture2D symbol, object criteria,string caption)
+		/**
+		 * the evaluator receives a metric and a target, and then tells if the metric fits the target.
+		 */
+		private Func<string, string, bool> evaluator;
+
+		public CompareType(ICriteriaFactory factory, FindAlertData data, Func<FindAlertData, string> metric, Func<string, string, bool> evaluator, Texture2D symbol, string initialTarget, string caption)
 		{
-			this.function = function;
-			this.symbol = symbol;
-			this.criteria = criteria;
-			this.caption = caption;
 			this.factory = factory;
+			metricFunction = metric;
+			alertData = data;
+			_target = initialTarget;
+			this.icon = symbol;
+			this.caption = caption;
+			this.evaluator = evaluator;
 		}
-		private static Dictionary<string, ICompareTypeFactory> knownTypes = new();
-		public static ICompareType Get(string name,FindAlertData data,object criteria)
+
+		public string Metric { get => metricFunction(alertData); }
+		public string Target { get => _target; set => _target = value; }
+
+		public ICriteriaFactory Factory => factory;
+
+	public FindAlertData Data { get => alertData; set => alertData=value; }
+
+	public void DrawSpecificationDetails(WidgetRow row)
 		{
-			ICompareTypeFactory result;
-			if(knownTypes.TryGetValue(name,out result))
+			if(row.ButtonIcon(this.icon))
 			{
-				return result.NewInstance(data, criteria);
+				
 			}
-			return EMPTY;
+
+			row.
 		}
 
-	public bool Evaluate()
-	{
-			
-	}
-
-	public Texture2D Icon()
-	{
-		return symbol;
-	}
-
-	
-	public static CompareType NextComparator(ICompareType countComp)
+		public bool Fits()
 		{
-			Dictionary<string, ICompareType>.ValueCollection x = knownTypes.Values;
+			return evaluator(Metric, Target);
+		}
 	}
-  }
-
 }
