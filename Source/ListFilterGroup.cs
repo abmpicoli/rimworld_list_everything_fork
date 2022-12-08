@@ -24,6 +24,12 @@ namespace List_Everything
 		public static new readonly Texture2D Equals = ContentFinder<Texture2D>.Get("Equals", true);
 		public static readonly Texture2D LessThan = ContentFinder<Texture2D>.Get("LessThan", true);
 		public static readonly Texture2D GreaterThan = ContentFinder<Texture2D>.Get("GreaterThan", true);
+		public static readonly Texture2D TurnedOn = ContentFinder<Texture2D>.Get("start", true);
+		public static readonly Texture2D TurnedOff = ContentFinder<Texture2D>.Get("stop", true);
+		public static readonly Texture2D BadLog = ContentFinder<Texture2D>.Get("badlog", true);
+		public static readonly Texture2D Log = ContentFinder<Texture2D>.Get("dolog", true);
+		public static readonly Texture2D NoLog = ContentFinder<Texture2D>.Get("nolog", true);
+		public static readonly Texture2D Unknown = ContentFinder<Texture2D>.Get("unknown", true);
 	}
 
 	public class ListFilterGroup : ListFilter, IFilterHolder

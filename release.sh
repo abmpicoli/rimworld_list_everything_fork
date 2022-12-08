@@ -5,14 +5,14 @@ RELEASE_VERSION="$(readlink -f "../$(basename $PWD)_RELEASE")"
 export RELEASE_VERSION
 case "$1" in 
 	DEV)
-		cp "$RELEASE_VERSION/About/PublishedFileId.txt" About 
+		cp "$RELEASE_VERSION/About/PublishedFileId.txt" About || echo 'Release not uploaded to steam yet'
 		rm -R "$RELEASE_VERSION" || echo 'RELEASE VERSION not released yet'
 		mv About/About.xml.off About/About.xml || echo 'It seems the DEV version is active. All ok'
 	;;
 	RELEASE)
 		rm -R "$RELEASE_VERSION" || echo "$RELEASE_VERSION deleted"
 		mkdir "$RELEASE_VERSION" || echo "$RELEASE_VERSION already created"
-		mkdir "$RELEASE_VERSION/About"
+		mkdir "$RELEASE_VERSION/About" || echo 'about folder created ok'
 		cp About/Preview.png "$RELEASE_VERSION/About"
 		cp -R Assemblies "$RELEASE_VERSION/Assemblies"
 		cp -R Defs "$RELEASE_VERSION/Defs"
