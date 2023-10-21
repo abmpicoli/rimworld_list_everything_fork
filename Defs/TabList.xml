@@ -36,14 +36,12 @@
 		<filterClass>List_Everything.ListFilterCategory</filterClass>
 	</List_Everything.ListFilterDef>
 
-	<!-- NOT YET FULLY IMPLEMENTED, SO LEFT IT OFF FOR THE MOMENT
+	
 	<List_Everything.ListFilterDef>
 		<defName>Filter_Script</defName>
 		<label>Script</label>
 		<filterClass>List_Everything.ListFilterScript</filterClass>
 	</List_Everything.ListFilterDef> -->
-	
-	<!-- pawn properties -->
 	<List_Everything.ListFilterCategoryDef>
 		<defName>Category_PawnProp</defName>
 		<label>personal details</label>

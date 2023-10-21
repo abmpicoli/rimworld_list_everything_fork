@@ -6,6 +6,7 @@ using System.Text;
 using Verse;
 using RimWorld;
 using UnityEngine;
+using System.Text.RegularExpressions;
 
 namespace List_Everything
 {
@@ -85,11 +86,13 @@ namespace List_Everything
 	}
 
 	public virtual void DoResolveReference(Map map) { }
-
-
 		public IEnumerable<Thing> Apply(IEnumerable<Thing> list)
 		{
-			return Enabled ? doApply(list) : list; 
+			if (Enabled)
+			{
+				return doApply(list);
+			}
+			return list; 
 		}
 
 		//This can be problematic for minified things: We want the qualities of the inner things,
@@ -226,13 +229,35 @@ namespace List_Everything
 
 	class ListFilterName : ListFilterWithOption<string>
 	{
+		private Logger log = new Logger("ListFilterName");
 		public ListFilterName() => sel = "";
 
-		protected override bool FilterApplies(Thing thing) =>
-			//thing.Label.Contains(sel, CaseInsensitiveComparer.DefaultInvariant);	//Contains doesn't accept comparer with strings. okay.
-			sel == "" || thing.Label.IndexOf(sel, StringComparison.OrdinalIgnoreCase) >= 0;
+		protected override bool FilterApplies(Thing thing) {
+			if (sel == "") return true;
 
-		public static readonly string namedLabel = "Named: ";
+			//thing.Label.Contains(sel, CaseInsensitiveComparer.DefaultInvariant);	//Contains doesn't accept comparer with strings. okay.
+
+			return DoCompare(thing.Label) || DoCompare(thing.def.label);
+			
+			}
+		private Regex rgx;
+	private bool DoCompare(string label)
+	{
+			try
+			{
+				if (rgx == null || rgx.ToString() != sel)
+				{
+					rgx = new Regex(sel, RegexOptions.IgnoreCase);
+				}
+				return rgx.IsMatch(label) || label.Contains(sel);
+			} catch(Exception) 
+			{
+				log.log(() => "invalid regular expression " + sel + ": falling back to original 'contains' pattern");
+				return label.Contains(sel);
+			}
+	}
+
+	public static readonly string namedLabel = "Named: ";
 		public static float? namedLabelWidth;
 		public static float NamedLabelWidth =>
 			namedLabelWidth.HasValue ? namedLabelWidth.Value :

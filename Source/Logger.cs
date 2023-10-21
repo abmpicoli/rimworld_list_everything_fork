@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Verse;
@@ -23,6 +24,14 @@ namespace List_Everything
 			}
 		}
 		private static readonly Stopwatch watch = new();
+
+		private StringBuilder capture;
+		public void StartCapture()
+		{
+			capture = new();
+			log(() => "full logs at " + filename);
+		}
+
 		private static object _logEnabled = null;
 		private static Boolean onlyOnce = false;
 		private static bool LogEnabled
@@ -53,18 +62,23 @@ namespace List_Everything
 		private readonly string context;
 		private StreamWriter writer;
 		private string file;
+		private string filename;
+
+
 
 		public Logger(String context)
 		{
 			this.context = context;
 		}
-		public Func<bool> enabled = () => LogEnabled;
-
+		public bool enabled()
+		{
+			return LogEnabled || (capture != null);
+		}
 		private StreamWriter getWriter()
 		{
 			if (writer == null)
 			{
-				string filename = Regex.Replace("" + context, "\\W+", "");
+				filename = Regex.Replace("" + context, "\\W+", "");
 
 				string directory;
 
@@ -81,7 +95,19 @@ namespace List_Everything
 			return writer;
 		}
 
-		private static string GetRootDirectory()
+		public string EndCapture()
+		{
+			if (capture != null)
+			{
+				string result = capture.ToString();
+				capture = null;
+				return result;
+			}
+			return "";
+
+		}
+
+		public static string GetRootDirectory()
 		{
 			string directory;
 			try
@@ -118,21 +144,33 @@ namespace List_Everything
 		private void FormatMessage(Func<object> v)
 		{
 			StreamWriter w = getWriter();
-			w.Write("[" + Thread.CurrentThread.Name + "]");
-			w.Write(" ");
+			StringBuilder b = new();
+			b.Append("[" + Thread.CurrentThread.Name + "]");
+			b.Append(" ");
 
-			w.Write(DateTime.Now.ToString("HHmmss.fff"));
-			w.Write(" ");
-			w.Write(v.Invoke());
-			w.WriteLine();
-
+			b.Append(v.Invoke());
+			b.AppendLine();
+			if(capture != null)
+			{
+				capture.Append(b);
+			}
+			b.Insert(0,DateTime.Now.ToString("HHmmss.fff"));
+			b.Insert(0," ");
+			b.Insert(0, Thread.CurrentThread.Name);
+			w.Write(b);
+			
 		}
 
 		public void VerseMessage(Func<object> v)
 		{
 			try
 			{
-				Verse.Log.Message("["+Mod.Name+"]" + context + ":" + v.Invoke());
+				string content = "[" + Mod.Name + "]" + context + ":" + v.Invoke();
+				if (capture != null)
+				{
+					capture.AppendLine(content);
+				}
+				Verse.Log.Message(content);
 			}
 			catch
 			{
@@ -143,7 +181,6 @@ namespace List_Everything
 		public void error(Func<object> v, Exception e)
 		{
 			VerseMessage(() => v.Invoke() + "\n" + e.ToString());
-
 			FormatException(v, e);
 			getWriter().Flush();
 		}
@@ -163,11 +200,35 @@ namespace List_Everything
 			FormatMessage(v);
 			getWriter().Flush();
 		}
-
 		private void FormatException(Func<object> v, Exception e)
 		{
 			FormatMessage(v);
-			getWriter().WriteLine(Regex.Replace("" + e?.ToString(), "(?m)^", "\n  "));
+			Exception inner = e?.InnerException;
+			StringBuilder traceString = new StringBuilder();
+			string causedBy = "";
+			Exception x = e;
+			while(x != null)
+			{
+				
+				StackTrace st = new StackTrace(x, true);
+				StackFrame[] fr = st.GetFrames();
+				traceString.Append(causedBy + x.GetType().FullName + ": " + x.Message);
+				causedBy = "Caused by:";
+				foreach (StackFrame f in fr)
+				{
+					traceString.AppendLine(" at " + f.GetMethod() + "(line " + f.GetFileLineNumber() + ",file " + f.GetFileName());
+				}
+
+				x = x.InnerException;
+	  }
+
+
+			
+			if (capture != null)
+			{
+				capture.AppendLine(traceString.ToString());
+			}
+			getWriter().WriteLine(traceString);
 			getWriter().Flush();
 		}
 
@@ -182,12 +243,28 @@ namespace List_Everything
 
 		public void log(Func<object> v, Exception ex)
 		{
+
 			if (enabled())
 			{
 				FormatException(v, ex);
 			}
 		}
+
+	public bool IsCapturing()
+	{
+	  return capture != null;
 	}
+
+		public string PeekCapture()
+		{
+			if(capture != null)
+			{
+				return capture.ToString();
+			}
+			return "";
+		}
+
+  }
 
 
 }

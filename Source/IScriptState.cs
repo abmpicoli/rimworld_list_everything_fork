@@ -6,6 +6,10 @@ namespace List_Everything
 {
 	internal interface IScriptState
 	{
+		/**
+		 * gets or set the script to process.
+		 */
+		string Script { get; set; }
 
 		///
 		/// true if the function can be invoked with the provided parameters.
@@ -20,27 +24,32 @@ namespace List_Everything
 		 *	
 		 *	IsException can be used to check if an exception happened.
 		 */
-		object Invoke(string functionName, params object[] args);
+		object Invoke(TimeSpan timeout, string functionName, params object[] args);
 
 		/**
 			* true if the script parsing or function invocation raised an error, or if the caller did report an error.
 			*/
 		bool IsException();
 
+
+		/**
+		 * if there is an exception, return the exception message. Or else return null.
+		 */
+		string ExceptionMessage();
+
 		/**
 		 * inform the script that an exception happened after the script was executed, which means the engine must be stopped for review.
 		 * 
 		 */
-		void ReportError(Exception ex);
+		void ReportError(Func<string> tooltip, Exception ex);
 
 		/**
-		 * Update the script name to a new value. If the value is changed, the engine should check if parsing is allowed and then
-		 * reprocess the script.
+		 * Update the script name to a new value. This must pause the script and turn on debug mode.
 		 */
 		void UpdateScriptName(string sel);
 
 		/**
-		 * Gets the current script name.
+		 * Gets the current script name. If the script was set using the script name, 
 		 */
 		string GetScriptName();
 
@@ -59,7 +68,7 @@ namespace List_Everything
 		 * Try to Activate the script, which enable calls to InvokeFunction. If an issue happens (like a syntax error in the script,
 		 * an error will be reported and the instance will be stopped.
 		 */
-		void Activate();
+		void Activate(TimeSpan timeout);
 		/**
 		 * true if debug mode is on: useful to allow scripts to log detailed messages, even if no error is raised.
 		 * If Debugging is off, errors won't be raised at all.
@@ -82,5 +91,12 @@ namespace List_Everything
 		 */
 		string Save();
 
-	}
+		string LastExecutionLog { get; }
+
+		/**
+		 * True if there are log events to show 
+		 */
+		bool HasCapturedState();
+		string PeekExecutionState();
+  }
 }

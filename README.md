@@ -6,6 +6,8 @@ Search, order and potentially act on all things inside Rimworld Colony/Encampmen
 
 List all sort of "things" on the map with various filters.
 
+The main difference from Uuuggggh's version is that I have added criteria for ordering and limiting query results.
+
 **3.0 Important change: the lists are no longer sorted in any way, unless you explicitly add a order clause: Look for "Order and limits" in this text. This means
 the original natural ordering by distance to Search Spot no longer work 'out of the box' since it is now a query option.**
 
@@ -72,3 +74,6 @@ The shellscript ./release.sh allows to build a "clean release" at another mod fo
 I don't see a problem if you post questions in the Comments section.
 
 If for some reason this is not possible for you, consider opening an issue on github https://github.com/abmpicoli/rimworld_list_everything_fork/issues. 
+
+	
+	
